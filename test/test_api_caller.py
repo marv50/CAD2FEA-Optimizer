@@ -10,4 +10,4 @@ if __name__ == "__main__":
     access_key = os.environ.get("ACCESS_KEY")
     secret_key = os.environ.get("SECRET_KEY")
 
-    print(export_step(document_id, workspace_id, element_id, access_key, secret_key))
+    print(export_step(document_id, "m", workspace_id, element_id, access_key, secret_key))

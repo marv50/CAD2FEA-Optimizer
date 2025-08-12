@@ -10,7 +10,7 @@ part studios are programmatically retrieved from Onshape and converted into usab
 Functions:
 - create_session: Initializes an authenticated session with custom headers.
 - fetch_step_content: Downloads raw STEP content from Onshape part studio.
-- export_partstudio: High-level function that retrieves STEP bytes for an entire part studio.
+- export_step: High-level function that retrieves STEP bytes for an entire part studio.
 
 Author: Marvin Frommer
 Date: 2025-07-27
@@ -45,7 +45,8 @@ def create_session(access_key: str, secret_key: str, headers: dict) -> requests.
 
 def fetch_step_content(
     document_id: str,
-    workspace_id: str,
+    wv_type: str,
+    wv_id: str,
     element_id: str,
     session: requests.Session,
     base_url: str = BASE_URL,
@@ -55,7 +56,8 @@ def fetch_step_content(
 
     Args:
         document_id (str): Onshape document ID.
-        workspace_id (str): Onshape workspace ID.
+        wv_type (str): Type of identifier ('w' for workspace, 'v' for version, 'm' for microversion).
+        wv_id (str): The workspace/version/microversion ID.
         element_id (str): Onshape element (tab) ID for the part studio.
         session (requests.Session): Authenticated session.
         base_url (str, optional): Onshape API base URL.
@@ -66,7 +68,7 @@ def fetch_step_content(
     Raises:
         RuntimeError: If STEP download fails or no redirect is provided.
     """
-    url = f"{base_url}/partstudios/d/{document_id}/w/{workspace_id}/e/{element_id}/export/step"
+    url = f"{base_url}/partstudios/d/{document_id}/{wv_type}/{wv_id}/e/{element_id}/export/step"
 
     try:
         response = session.get(url, allow_redirects=False)
@@ -93,7 +95,8 @@ def fetch_step_content(
 
 def export_step(
     document_id: str,
-    workspace_id: str,
+    wv_type: str,
+    wv_id: str,
     element_id: str,
     access_key: str,
     secret_key: str
@@ -103,7 +106,8 @@ def export_step(
 
     Args:
         document_id (str): Onshape document ID.
-        workspace_id (str): Workspace ID containing the part studio.
+        wv_type (str): 'w', 'v', or 'm' to specify workspace, version, or microversion.
+        wv_id (str): Corresponding workspace/version/microversion ID.
         element_id (str): Element ID of the part studio to export.
         access_key (str): Onshape access key.
         secret_key (str): Onshape secret key.
@@ -116,5 +120,5 @@ def export_step(
     """
     logger.debug("Creating session for part studio export.")
     session = create_session(access_key, secret_key, STEP_HEADERS)
-    content = fetch_step_content(document_id, workspace_id, element_id, session)
+    content = fetch_step_content(document_id, wv_type, wv_id, element_id, session)
     return content
